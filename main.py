@@ -2,7 +2,7 @@ import re
 import asyncio
 import json
 
-
+user_data = {}
 
 async def phone_number():
     phone = input('ведите номер телефона:')
@@ -10,6 +10,7 @@ async def phone_number():
     await asyncio.sleep(2)
 
     if check_phone:
+        user_data['phone'] = phone
         await fio()
     else:
         print('Неправильно введено имя')
@@ -21,6 +22,7 @@ async def fio():
     await asyncio.sleep(2)
 
     if check_fio:
+        user_data['fio'] = choose_fio
         await mail()
     else:
         print('Неправильно введено имя')
@@ -28,13 +30,14 @@ async def fio():
 
 async def check_old():
     age = int(input('Введите свой возраст'))
-    if age >= 2007:
+    if age <= 10:
+        user_data['age'] = age
         await new_menu()
     else:
         await old_menu()
 
 async def old_menu():
-    print('Вы выбрали меню для маленького любителя пиццы')
+    print('Вы выбрали меню для взрослого любителя пиццы')
     print("У нас стартовала акция кастомная пицца. Напишите ингредиенты для пиццы через запятую.")
     print('Вы можете выбрать ингридиенты такие как: Пепперони, Сыр, Кетчуп, Майонез, Лосось, Секретный ингридиент')
     ingredients = input('Введите 5 ингредиентов для пиццы ЧЕРЕЗ ЗАПЯТУЮ: ')
@@ -71,6 +74,7 @@ async def mail():
     await asyncio.sleep(2)
 
     if check_mail:
+        user_data['mail'] = choose_mail
         await order()
     else:
         print('Неправильно введена почта')
@@ -80,13 +84,18 @@ async def main():
     await phone_number()
     print("\n" + "=" * 50 + "\n")
 
+async def save_data():
+    with open('user_data.txt', 'a', encoding='utf-8') as file:
+        file.write('Данные пользователя\n')
 
-
+        for i, j in user_data.items():
+            file.write(f'{i}: {j}\n')
 
 async def prepare_order():
     print('Заказ готовится')
     await asyncio.sleep(4)
     print('Всё готово! С вашей карты было снято 999 рублей! Приходите ещё!')
+    await save_data()
 
 
 async def order():
@@ -94,7 +103,8 @@ async def order():
     check_data = re.search(r'\d{2}/\d{2}/\d{4}', data)
 
     if check_data:
-        await new_menu()
+        user_data['data'] = data
+        await check_old()
     else:
         print('Неправильный формат даты')
         await order()
